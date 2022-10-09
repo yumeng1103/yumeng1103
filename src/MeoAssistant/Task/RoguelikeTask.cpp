@@ -9,6 +9,7 @@
 #include "Plugin/RoguelikeResetTaskPlugin.h"
 #include "Plugin/RoguelikeShoppingTaskPlugin.h"
 #include "Plugin/RoguelikeSkillSelectionTaskPlugin.h"
+#include "Plugin/RoguelikeStageEncounterTaskPlugin.h"
 #include "RuntimeStatus.h"
 #include "Sub/ProcessTask.h"
 #include "Utils/AsstBattleDef.h"
@@ -22,6 +23,7 @@ asst::RoguelikeTask::RoguelikeTask(const AsstCallback& callback, void* callback_
     m_roguelike_task_ptr->register_plugin<RoguelikeControlTaskPlugin>();
     m_roguelike_task_ptr->register_plugin<RoguelikeResetTaskPlugin>();
     m_debug_task_ptr = m_roguelike_task_ptr->register_plugin<RoguelikeDebugTaskPlugin>();
+    m_roguelike_task_ptr->register_plugin<RoguelikeStageEncounterTaskPlugin>();
     m_roguelike_task_ptr->register_plugin<RoguelikeShoppingTaskPlugin>()->set_retry_times(0);
 
     m_custom_start_task_ptr = m_roguelike_task_ptr->register_plugin<RoguelikeCustomStartTaskPlugin>();
