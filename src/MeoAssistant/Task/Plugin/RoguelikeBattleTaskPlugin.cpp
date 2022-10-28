@@ -918,6 +918,7 @@ bool asst::RoguelikeBattleTaskPlugin::try_possible_skill(const cv::Mat& image)
         }
         else {
             analyzer.save_img("debug/skill_ready/y/", false);
+            continue;
         }
         m_ctrler->click(pos_rect);
         sleep(Task.get("BattleUseOper")->pre_delay);
