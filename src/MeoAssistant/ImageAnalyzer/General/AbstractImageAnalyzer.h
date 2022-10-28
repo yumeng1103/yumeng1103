@@ -28,7 +28,7 @@ namespace asst
         AbstractImageAnalyzer& operator=(const AbstractImageAnalyzer&) = delete;
         AbstractImageAnalyzer& operator=(AbstractImageAnalyzer&&) = delete;
 
-        bool save_img(const std::string& dirname = "debug/");
+        bool save_img(const std::string& dirname = "debug/", bool full_img = true);
 
     protected:
         static Rect correct_rect(const Rect& rect, const cv::Mat& image) noexcept;

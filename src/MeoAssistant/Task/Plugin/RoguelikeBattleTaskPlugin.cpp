@@ -913,7 +913,11 @@ bool asst::RoguelikeBattleTaskPlugin::try_possible_skill(const cv::Mat& image)
         const Rect roi = pos_rect.move(skill_roi_move);
         analyzer.set_roi(roi);
         if (!analyzer.analyze()) {
+            analyzer.save_img("debug/skill_ready/n/", false);
             continue;
+        }
+        else {
+            analyzer.save_img("debug/skill_ready/y/", false);
         }
         m_ctrler->click(pos_rect);
         sleep(Task.get("BattleUseOper")->pre_delay);

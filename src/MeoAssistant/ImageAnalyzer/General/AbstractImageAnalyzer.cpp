@@ -76,17 +76,19 @@ asst::Rect asst::AbstractImageAnalyzer::correct_rect(const Rect& rect, const cv:
     return res;
 }
 
-bool asst::AbstractImageAnalyzer::save_img(const std::string& dirname)
+bool asst::AbstractImageAnalyzer::save_img(const std::string& dirname, bool full_img)
 {
     std::string stem = utils::get_format_time();
     stem = utils::string_replace_all(stem, { { ":", "-" }, { " ", "_" } });
     std::filesystem::create_directories(dirname);
-    std::string full_path = dirname + stem + "_raw.png";
+    static size_t static_index = 0;
+    std::string index_str = full_img ? "" : ("_" + std::to_string(static_index++));
+    std::string full_path = dirname + stem + index_str + "_raw.png";
     Log.trace("Save image", full_path);
-    bool ret = asst::imwrite(full_path, m_image);
+    bool ret = asst::imwrite(full_path, full_img ? m_image : m_image(make_rect<cv::Rect>(m_roi)));
 
 #ifdef ASST_DEBUG
-    asst::imwrite(dirname + stem + "_draw.png", m_image_draw);
+    asst::imwrite(dirname + stem + "_draw.png", full_img ? m_image_draw : m_image_draw(make_rect<cv::Rect>(m_roi)));
 #endif
 
     return ret;
