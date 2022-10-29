@@ -11,6 +11,7 @@ bool asst::RoguelikeDebugTaskPlugin::verify(AsstMsg msg, const json::value& deta
     }
 
     if (msg == AsstMsg::SubTaskError) {
+        m_image_path = "debug/roguelike/";
         return true;
     }
 
@@ -27,6 +28,11 @@ bool asst::RoguelikeDebugTaskPlugin::verify(AsstMsg msg, const json::value& deta
     }
     if (msg == AsstMsg::SubTaskStart && details.get("subtask", std::string()) == "ProcessTask") {
         if (task_view == "Roguelike@ExitThenAbandon" || task_view == "Roguelike@GamePass") {
+            m_image_path = "debug/roguelike/";
+            return true;
+        }
+        if (task_view.starts_with("Roguelike@StageEncounterOption")) {
+            m_image_path = "debug/roguelike/encounter/";
             return true;
         }
     }
@@ -36,6 +42,6 @@ bool asst::RoguelikeDebugTaskPlugin::verify(AsstMsg msg, const json::value& deta
 
 bool asst::RoguelikeDebugTaskPlugin::_run()
 {
-    save_img("debug/roguelike/");
+    save_img(m_image_path);
     return true;
 }

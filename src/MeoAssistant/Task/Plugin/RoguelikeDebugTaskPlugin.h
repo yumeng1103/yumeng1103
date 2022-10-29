@@ -14,5 +14,8 @@ namespace asst
 
     protected:
         virtual bool _run() override;
+
+    private:
+        mutable std::string m_image_path;
     };
 }
