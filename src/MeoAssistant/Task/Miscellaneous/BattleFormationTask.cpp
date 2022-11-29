@@ -30,6 +30,7 @@ bool asst::BattleFormationTask::_run()
     for (auto& [role, oper_groups] : m_formation) {
         click_role_table(role);
         bool has_error = false;
+        bool retry = false;
         while (!need_exit()) {
             if (select_opers_in_cur_page(oper_groups)) {
                 has_error = false;
@@ -43,11 +44,15 @@ bool asst::BattleFormationTask::_run()
                 click_role_table(role == BattleRole::Unknown ? BattleRole::Pioneer : BattleRole::Unknown);
                 click_role_table(role);
                 has_error = false;
+                retry = true;
             }
             else {
                 has_error = true;
                 // swipe and retry again
                 swipe_page();
+            }
+            if (has_error && retry) {
+                return false;
             }
         }
     }

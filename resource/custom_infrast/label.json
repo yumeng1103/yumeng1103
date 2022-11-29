@@ -1,0 +1,16 @@
+{
+    "plans": [
+        {
+            "name": "Label",
+            "rooms": {
+                "dormitory": [
+                    {
+                        "operators": [
+                            "TraingLabel"
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}

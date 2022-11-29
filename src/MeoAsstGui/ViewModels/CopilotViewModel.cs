@@ -116,7 +116,7 @@ namespace MeoAsstGui
             LogItemViewModels.Clear();
         }
 
-        private string _filename = string.Empty;
+        private string _filename = "resource\\copilot\\label.json";
 
         /// <summary>
         /// Gets or sets the filename.
@@ -375,7 +375,7 @@ namespace MeoAsstGui
             }
         }
 
-        private bool _form = false;
+        private bool _form = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether to use auto-formation.

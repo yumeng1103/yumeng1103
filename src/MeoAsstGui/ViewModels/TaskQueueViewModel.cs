@@ -243,6 +243,11 @@ namespace MeoAsstGui
             UpdateDatePrompt();
             UpdateStageList(true);
             RefreshCustonInfrastPlan();
+
+            AddLog("该版本仅用于自动标注训练集，无法正常使用\n非常感谢您的帮助！\n", UILogColor.Info);
+            AddLog("1. 基建干员名标注：请选择 设置 - 基建设置 - 自定义基建 - 内置配置 - 基建训练标注，然后在 主界面 - 基建计划 - Label，接着勾选基建任务并开始\n", UILogColor.Info);
+            AddLog("2. 自动编队干员名标注：请使用自动战斗功能，在游戏有“开始行动”的界面，勾选自动编队后开始任务\n", UILogColor.Info);
+            AddLog("完成后请检查 debug/label/XXX/error/ 文件夹，改正其中的结果，然后将 debug/label/ 文件夹打包发出，谢谢！\n", UILogColor.Info);
         }
 
         private StageManager _stageManager;

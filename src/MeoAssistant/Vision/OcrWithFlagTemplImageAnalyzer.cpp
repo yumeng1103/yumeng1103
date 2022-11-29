@@ -1,5 +1,6 @@
 #include "OcrWithFlagTemplImageAnalyzer.h"
 
+#include "Config/Miscellaneous/BattleDataConfig.h"
 #include "Config/TaskData.h"
 
 asst::OcrWithFlagTemplImageAnalyzer::OcrWithFlagTemplImageAnalyzer(const cv::Mat& image)
@@ -33,6 +34,15 @@ bool asst::OcrWithFlagTemplImageAnalyzer::analyze()
         set_roi(roi);
 
         if (OcrWithPreprocessImageAnalyzer::analyze()) {
+            if (!m_ocr_result.empty()) {
+                const auto& res = m_ocr_result.front();
+                if (BattleData.get_role(res.text) == BattleRole::Unknown || res.score < 0.5) {
+                    save_img("debug/label/copilot/error/", res.text);
+                }
+                else {
+                    save_img("debug/label/copilot/", res.text);
+                }
+            }
             m_all_result.insert(m_all_result.end(), std::make_move_iterator(m_ocr_result.begin()),
                                 std::make_move_iterator(m_ocr_result.end()));
         }

@@ -70,29 +70,8 @@ bool asst::InfrastTask::set_params(const json::value& params)
             if (facility == "Dorm") {
                 m_subtasks.emplace_back(m_dorm_task_ptr);
             }
-            else if (facility == "Mfg") {
-                m_subtasks.emplace_back(m_mfg_task_ptr);
-            }
-            else if (facility == "Trade") {
-                m_subtasks.emplace_back(m_trade_task_ptr);
-            }
-            else if (facility == "Power") {
-                m_subtasks.emplace_back(m_power_task_ptr);
-            }
-            else if (facility == "Office") {
-                m_subtasks.emplace_back(m_office_task_ptr);
-            }
-            else if (facility == "Reception") {
-                m_subtasks.emplace_back(m_reception_task_ptr);
-            }
-            else if (facility == "Control") {
-                m_subtasks.emplace_back(m_control_task_ptr);
-            }
             else {
-                Log.error(__FUNCTION__, "| Unknown facility", facility);
-                m_subtasks.clear();
-                append_infrast_begin();
-                return false;
+                continue;
             }
             append_infrast_begin();
         }

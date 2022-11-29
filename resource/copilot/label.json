@@ -1,0 +1,19 @@
+{
+    "minimum_required": "v4.0.0",
+    "doc": {
+        "title": "Hello World",
+        "details": "第一份测试作业",
+        "requirements": ""
+    },
+    "stage_name": "1-7",
+    "opers": [
+        {
+            "name": "TrainingLabel"
+        }
+    ],
+    "actions": [
+        {
+            "type": "二倍速"
+        }
+    ]
+}

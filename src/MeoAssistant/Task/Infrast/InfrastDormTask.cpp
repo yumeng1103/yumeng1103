@@ -59,7 +59,7 @@ bool asst::InfrastDormTask::_run()
             opers_choose();
         }
 
-        click_confirm_button();
+        //click_confirm_button();
         click_return_button();
 
         if (m_next_step == NextStep::AllDone) { // 不蹭信赖或所有干员满信赖

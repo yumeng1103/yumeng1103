@@ -5,16 +5,17 @@
 #include <utility>
 
 #include "Common/AsstMsg.h"
+#include "Config/Miscellaneous/BattleDataConfig.h"
+#include "Config/TaskData.h"
 #include "Controller.h"
+#include "Task/ProcessTask.h"
+#include "Utils/Logger.hpp"
+#include "Utils/Ranges.hpp"
 #include "Vision/Infrast/InfrastFacilityImageAnalyzer.h"
 #include "Vision/Infrast/InfrastOperImageAnalyzer.h"
 #include "Vision/MatchImageAnalyzer.h"
 #include "Vision/OcrImageAnalyzer.h"
 #include "Vision/OcrWithPreprocessImageAnalyzer.h"
-#include "Config/TaskData.h"
-#include "Task/ProcessTask.h"
-#include "Utils/Logger.hpp"
-#include "Utils/Ranges.hpp"
 
 asst::InfrastAbstractTask::InfrastAbstractTask(const AsstCallback& callback, Assistant* inst,
                                                std::string_view task_chain)
@@ -164,12 +165,13 @@ bool asst::InfrastAbstractTask::swipe_and_select_custom_opers(bool is_dorm_order
     bool retried = false;
     bool pre_result_no_changes = false;
     int swipe_times = 0;
+    static int index = 0;
     while (true) {
         if (need_exit()) {
             return false;
         }
         std::vector<std::string> partial_result;
-        if (!select_custom_opers(partial_result)) {
+        if (!select_custom_opers(partial_result, index)) {
             return false;
         }
         if (room_config.selected >= max_num_of_opers() ||
@@ -184,6 +186,7 @@ bool asst::InfrastAbstractTask::swipe_and_select_custom_opers(bool is_dorm_order
                     break;
                 }
                 swipe_to_the_left_of_operlist(swipe_times + 1);
+                ++index;
                 swipe_times = 0;
                 retried = true;
             }
@@ -222,7 +225,7 @@ bool asst::InfrastAbstractTask::swipe_and_select_custom_opers(bool is_dorm_order
     return room_config.names.empty();
 }
 
-bool asst::InfrastAbstractTask::select_custom_opers(std::vector<std::string>& partial_result)
+bool asst::InfrastAbstractTask::select_custom_opers(std::vector<std::string>& partial_result, int index)
 {
     LogTraceFunction;
 
@@ -248,10 +251,20 @@ bool asst::InfrastAbstractTask::select_custom_opers(std::vector<std::string>& pa
         name_analyzer.set_replace(ocr_replace);
         name_analyzer.set_image(oper.name_img);
         name_analyzer.set_expansion(0);
+        std::string str_index = std::to_string(index);
         if (!name_analyzer.analyze()) {
+            name_analyzer.save_img("debug/label/infrast/error/" + str_index + "/");
             continue;
         }
         const std::string& name = name_analyzer.get_result().front().text;
+        double score = name_analyzer.get_result().front().score;
+        if (BattleData.get_role(name) == BattleRole::Unknown || score < 0.5) {
+            name_analyzer.save_img("debug/label/infrast/error/" + str_index + "/", name);
+        }
+        else {
+            name_analyzer.save_img("debug/label/infrast/" + str_index + "/", name);
+        }
+
         partial_result.emplace_back(name);
 
         if (auto iter = ranges::find(room_config.names, name); iter != room_config.names.end()) {

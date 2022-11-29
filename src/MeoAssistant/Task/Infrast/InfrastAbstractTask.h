@@ -38,7 +38,7 @@ namespace asst
         bool is_use_custom_opers();
         infrast::CustomRoomConfig& current_room_config();
         bool swipe_and_select_custom_opers(bool is_dorm_order = false);
-        bool select_custom_opers(std::vector<std::string>& partial_result);
+        bool select_custom_opers(std::vector<std::string>& partial_result, int index);
         void order_opers_selection(const std::vector<std::string>& names);
 
         virtual void click_return_button() override;

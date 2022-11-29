@@ -149,6 +149,7 @@ namespace MeoAsstGui
             DefaultInfrastList = new List<CombData>
             {
                 new CombData { Display = Localization.GetString("UserDefined"), Value = _userDefined },
+                new CombData { Display = Localization.GetString("BaseTrainLabel"), Value = "label.json" },
                 new CombData { Display = Localization.GetString("153_3"), Value = "153_layout_3_times_a_day.json" },
                 new CombData { Display = Localization.GetString("243_3"), Value = "243_layout_3_times_a_day.json" },
                 new CombData { Display = Localization.GetString("243_4"), Value = "243_layout_4_times_a_day.json" },

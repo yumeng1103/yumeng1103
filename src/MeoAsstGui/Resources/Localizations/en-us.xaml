@@ -42,6 +42,7 @@
     <system:String x:Key="CustomInfrastEnabled">Enable Custom Base (beta)</system:String>
     <system:String x:Key="DefaultInfrast">Default Infrast</system:String>
     <system:String x:Key="UserDefined">User defined</system:String>
+    <system:String x:Key="BaseTrainLabel">Base Training Label</system:String>
     <system:String x:Key="153_3">153 3 times a day</system:String>
     <system:String x:Key="243_3">243 3 times a day</system:String>
     <system:String x:Key="243_4">243 4 times a day</system:String>

@@ -32,7 +32,7 @@ namespace asst
         AbstractImageAnalyzer& operator=(const AbstractImageAnalyzer&) = delete;
         AbstractImageAnalyzer& operator=(AbstractImageAnalyzer&&) = delete;
 
-        bool save_img(const std::string& dirname = "debug/");
+        bool save_img(const std::string& dirname = "debug/", const std::string& filename = "");
 
     protected:
         using InstHelper::status;
