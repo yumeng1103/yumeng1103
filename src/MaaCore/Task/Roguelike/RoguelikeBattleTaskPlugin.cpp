@@ -355,9 +355,6 @@ bool asst::RoguelikeBattleTaskPlugin::auto_battle()
     }
 
     const cv::Mat& image = ctrler()->get_image();
-    if (!m_first_deploy && try_possible_skill(image)) {
-        return true;
-    }
 
     BattleImageAnalyzer battle_analyzer(image);
     battle_analyzer.set_target(BattleImageAnalyzer::Target::Roguelike);
@@ -366,8 +363,20 @@ bool asst::RoguelikeBattleTaskPlugin::auto_battle()
         return false;
     }
 
+    int available_count = 0;
+    int cooling_count = 0;
     battle_analyzer.sort_opers_by_cost();
     auto opers = battle_analyzer.get_opers();
+    for (const auto& oper : opers) {
+        if (oper.cooling) cooling_count++;
+        if (oper.available) available_count++;
+    }
+    if (cooling_count <= m_last_cooling_count) {
+        if (!m_first_deploy && try_possible_skill(image)) {
+            return true;
+        }
+    }
+
     if (opers.empty()) {
         return true;
     }
@@ -377,17 +386,11 @@ bool asst::RoguelikeBattleTaskPlugin::auto_battle()
         m_cur_home_index = 0;
     }
 
-    int available_count = 0;
-    int cooling_count = 0;
     std::vector<size_t> new_urgent;
     std::vector<std::string> cooling_opers;
     const auto use_oper_task_ptr = Task.get("BattleUseOper");
     bool has_dice = false;
     BattleRealTimeOper dice;
-    for (const auto& oper : opers) {
-        if (oper.cooling) cooling_count++;
-        if (oper.available) available_count++;
-    }
     for (auto& oper : opers) {
         if (oper.role != BattleRole::Drone) {
             continue;
@@ -920,6 +923,20 @@ bool asst::RoguelikeBattleTaskPlugin::try_possible_skill(const cv::Mat& image)
         const Point pos = m_normal_tile_info.at(loc).pos;
         const Rect pos_rect(pos.x, pos.y, 1, 1);
         const Rect roi = pos_rect.move(skill_roi_move);
+
+#define ASST_LABEL
+#ifdef ASST_LABEL
+        {
+            using std::filesystem::directory_iterator;
+            const Rect oper_roi = pos_rect.move({ -40, -80, 80, 105 });
+            const std::string dir = "debug/label/opers/";
+            static uint64_t index = std::distance(directory_iterator(dir), directory_iterator {});
+            asst::imwrite(dir + oper_name + "_" + std::to_string(++index) + ".png",
+                          image(make_rect<cv::Rect>(oper_roi)));
+        }
+#endif
+#undef ASST_LABEL
+
         analyzer.set_roi(roi);
         if (!analyzer.analyze()) {
             continue;
