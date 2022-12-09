@@ -64,6 +64,8 @@ namespace asst
             return range_iter->second;
         }
 
+        const auto& get_all_chars() const noexcept { return m_chars; }
+
     protected:
         virtual bool parse(const json::value& json) override;
 

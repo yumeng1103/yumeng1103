@@ -2,6 +2,7 @@
 
 #include "Utils/Ranges.hpp"
 #include <chrono>
+#include <fstream>
 #include <future>
 
 #include "Utils/NoWarningCV.h"
@@ -903,6 +904,43 @@ bool asst::RoguelikeBattleTaskPlugin::try_possible_skill(const cv::Mat& image)
         return false;
     }
 
+#define ASST_LABEL
+
+#ifdef ASST_LABEL
+    const static std::string images_dir = "debug/yolo/images/";
+    const static std::string labels_dir = "debug/yolo/labels/";
+
+    static int set_inited = false;
+    static std::unordered_map<std::string, size_t> dataset_index(BattleData.get_all_chars().size());
+    if (!set_inited) {
+        set_inited = true;
+        std::filesystem::create_directories(images_dir);
+        std::filesystem::create_directories(labels_dir);
+        const static std::string dataset_yaml = "debug/yolo/dataset.yaml";
+        std::ofstream dataset_ofs(dataset_yaml);
+        dataset_ofs << "path: ./\n"
+                    << "train: " << images_dir << "\n"
+                    << "val: " << images_dir << "\n"
+                    << "test:\n"
+                    << "\n"
+                    << "names:\n";
+        size_t index = 0;
+        for (const auto& [name, _] : BattleData.get_all_chars()) {
+            dataset_index.emplace(name, index);
+            dataset_ofs << "  " << index << ": " << name << "\n";
+            ++index;
+        }
+        dataset_ofs << std::endl;
+        dataset_ofs.close();
+    }
+
+    std::string stem = utils::get_format_time();
+    stem = utils::string_replace_all(stem, { { ":", "-" }, { " ", "_" } });
+    bool got_data = false;
+
+    std::ofstream label_ofs(labels_dir + stem + ".txt");
+#endif
+
     auto task_ptr = Task.get("BattleAutoSkillFlag");
     const Rect& skill_roi_move = task_ptr->rect_move;
 
@@ -924,18 +962,12 @@ bool asst::RoguelikeBattleTaskPlugin::try_possible_skill(const cv::Mat& image)
         const Rect pos_rect(pos.x, pos.y, 1, 1);
         const Rect roi = pos_rect.move(skill_roi_move);
 
-#define ASST_LABEL
 #ifdef ASST_LABEL
-        {
-            using std::filesystem::directory_iterator;
-            const Rect oper_roi = pos_rect.move({ -40, -80, 80, 105 });
-            const std::string dir = "debug/label/opers/";
-            static uint64_t index = std::distance(directory_iterator(dir), directory_iterator {});
-            asst::imwrite(dir + oper_name + "_" + std::to_string(++index) + ".png",
-                          image(make_rect<cv::Rect>(oper_roi)));
-        }
+        got_data = true;
+        label_ofs << dataset_index.at(oper_name) << " " << static_cast<double>(pos.x) / image.cols << " "
+                  << static_cast<double>(pos.y) / image.rows << " " << 80.0 / image.cols << " " << 105.0 / image.cols
+                  << std::endl;
 #endif
-#undef ASST_LABEL
 
         analyzer.set_roi(roi);
         if (!analyzer.analyze()) {
@@ -953,7 +985,16 @@ bool asst::RoguelikeBattleTaskPlugin::try_possible_skill(const cv::Mat& image)
             m_restore_status[status_key] = static_cast<int64_t>(BattleSkillUsage::Once);
         }
     }
+
+#ifdef ASST_LABEL
+    label_ofs.close();
+    if (got_data) {
+        asst::imwrite(images_dir + stem + ".png", image);
+    }
+#endif
+
     return used;
+#undef ASST_LABEL
 }
 
 bool asst::RoguelikeBattleTaskPlugin::check_key_kills(const cv::Mat& image)
