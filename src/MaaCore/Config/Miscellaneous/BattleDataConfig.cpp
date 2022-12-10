@@ -7,7 +7,7 @@
 
 bool asst::BattleDataConfig::parse(const json::value& json)
 {
-    for (const auto& char_data_json : json.at("chars").as_object() | views::values) {
+    for (const auto& [id, char_data_json] : json.at("chars").as_object()) {
         BattleCharData data;
         std::string name = char_data_json.at("name").as_string();
         data.name = name;
@@ -42,6 +42,7 @@ bool asst::BattleDataConfig::parse(const json::value& json)
         else {
             data.location_type = iter->second;
         }
+        data.id = id;
 
         m_chars.emplace(std::move(name), std::move(data));
     }

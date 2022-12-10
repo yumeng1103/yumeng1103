@@ -205,6 +205,7 @@ namespace asst
 
     struct BattleCharData
     {
+        std::string id;
         std::string name;
         BattleRole role = BattleRole::Unknown;
         std::array<std::string, 3> ranges;

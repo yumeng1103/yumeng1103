@@ -925,9 +925,9 @@ bool asst::RoguelikeBattleTaskPlugin::try_possible_skill(const cv::Mat& image)
                     << "\n"
                     << "names:\n";
         size_t index = 0;
-        for (const auto& [name, _] : BattleData.get_all_chars()) {
-            dataset_index.emplace(name, index);
-            dataset_ofs << "  " << index << ": " << name << "\n";
+        for (const auto& [_, info] : BattleData.get_all_chars()) {
+            dataset_index.emplace(info.id, index);
+            dataset_ofs << "  " << index << ": " << info.id << "\n";
             ++index;
         }
         dataset_ofs << std::endl;
@@ -964,9 +964,7 @@ bool asst::RoguelikeBattleTaskPlugin::try_possible_skill(const cv::Mat& image)
 
 #ifdef ASST_LABEL
         got_data = true;
-        label_ofs << dataset_index.at(oper_name) << " " << static_cast<double>(pos.x) / image.cols << " "
-                  << static_cast<double>(pos.y) / image.rows << " " << 80.0 / image.cols << " " << 105.0 / image.cols
-                  << std::endl;
+        label_ofs << dataset_index.at(oper_name) << " " << pos.x << " " << pos.y << std::endl;
 #endif
 
         analyzer.set_roi(roi);
