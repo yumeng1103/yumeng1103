@@ -638,9 +638,11 @@ bool asst::Controller::screencap(const std::string& cmd, const DecodeFunc& decod
     }
     auto& data = ret.value();
     if (m_screencap_data_general_size && data.size() < m_screencap_data_general_size * 0.1) {
+        using namespace asst::utils::path_literals;
+
         std::string stem = utils::get_format_time();
-        utils::string_replace_all_in_place(stem, { { ":", "-" }, { " ", "_" } });
-        auto path = utils::path("debug") / utils::path("screencap") / utils::path(stem);
+        stem = utils::string_replace_all(stem, { { ":", "-" }, { " ", "_" }, { ".", "-" } });
+        auto path = "debug"_p / "screencap"_p / utils::path(stem + ".dump");
         Log.error("data is too small! save to", path);
         std::filesystem::create_directories(path.parent_path());
         std::ofstream debug_ofs(path);
@@ -1368,7 +1370,7 @@ std::optional<int> asst::Controller::call_command_win32(const std::string& cmd, 
 
     asst::platform::single_page_buffer<char> pipe_buffer;
     asst::platform::single_page_buffer<char> sock_buffer;
-    
+
     HANDLE pipe_parent_read = INVALID_HANDLE_VALUE, pipe_child_write = INVALID_HANDLE_VALUE;
     SECURITY_ATTRIBUTES sa_inherit { .nLength = sizeof(SECURITY_ATTRIBUTES), .bInheritHandle = TRUE };
     if (!asst::win32::CreateOverlappablePipe(&pipe_parent_read, &pipe_child_write, nullptr, &sa_inherit,
@@ -1690,7 +1692,6 @@ std::optional<int> asst::Controller::call_command_tcpip(const std::string& cmd, 
     // adb connect
     // TODO: adb server 尚未实现，第一次连接需要执行一次 adb.exe 启动 daemon
     if (std::regex_match(cmd, match, connect_regex)) {
-
         m_adb_client = adb::client::create(match[1].str()); // TODO: compare address with existing (if any)
 
         try {
