@@ -638,7 +638,14 @@ bool asst::Controller::screencap(const std::string& cmd, const DecodeFunc& decod
     }
     auto& data = ret.value();
     if (m_screencap_data_general_size && data.size() < m_screencap_data_general_size * 0.1) {
-        Log.error("data is too small!");
+        std::string stem = utils::get_format_time();
+        utils::string_replace_all_in_place(stem, { { ":", "-" }, { " ", "_" } });
+        auto path = utils::path("debug") / utils::path("screencap") / utils::path(stem);
+        Log.error("data is too small! save to", path);
+        std::filesystem::create_directories(path.parent_path());
+        std::ofstream debug_ofs(path);
+        debug_ofs << data;
+        debug_ofs.close();
         return false;
     }
 
