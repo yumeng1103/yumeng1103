@@ -10,6 +10,7 @@
 
 #include "Config/OnnxSession.h"
 #include "Config/TaskData.h"
+#include "Utils/ImageIo.hpp"
 #include "Utils/Logger.hpp"
 
 template <typename T>
@@ -30,8 +31,9 @@ bool asst::BattleSkillReadyImageAnalyzer::analyze()
 {
     LogTraceFunction;
 
-    cv::Mat image = m_image(make_rect<cv::Rect>(m_roi));
-    cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
+    cv::Mat src = m_image(make_rect<cv::Rect>(m_roi));
+    cv::Mat image;
+    cv::cvtColor(src, image, cv::COLOR_BGR2RGB);
 
     size_t input_size = 1ULL * image.cols * image.rows * image.channels();
     std::vector<float> input(input_size);
@@ -71,16 +73,16 @@ bool asst::BattleSkillReadyImageAnalyzer::analyze()
     session.Run(run_options, input_names, &input_tensor, 1, output_names, &output_tensor, 1);
 
     softmax(results);
-
     Log.info("after softmax, 0: ", results[0], ", 1: ", results[1]);
 
-    auto max_iter = std::max_element(results.begin(), results.end());
-    if (*max_iter < 0.7) {
-        Log.warn("Skill ready recognition confidence too low: ", *max_iter, ", roi:", m_roi);
-        save_img(utils::path("debug") / utils::path("skill_ready_rec"));
+    bool is_skill = results[1] > results[0];
+    if (is_skill) {
+        std::string stem = utils::get_random_filestem();
+        auto relative_path = utils::path("debug") / utils::path("skill_ready_rec") / (stem + "_raw.png");
+        Log.trace("Save image", relative_path);
+        asst::imwrite(relative_path, src);
     }
-
-    return results[1] > results[0];
+    return is_skill;
 }
 
 void asst::BattleSkillReadyImageAnalyzer::set_base_point(const Point& pt)
