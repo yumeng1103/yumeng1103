@@ -46,9 +46,9 @@ namespace asst
         return false;
     }
 
-    inline bool imwrite(const std::string& utf8_path, cv::InputArray img,
-                        const std::vector<int>& params = std::vector<int>())
-    {
-        return imwrite(asst::utils::path(utf8_path), img, params);
-    }
-}  // namespace asst
+    // inline bool imwrite(const std::string& utf8_path, cv::InputArray img,
+    //                     const std::vector<int>& params = std::vector<int>())
+    //{
+    //     return imwrite(asst::utils::path(utf8_path), img, params);
+    // }
+} // namespace asst

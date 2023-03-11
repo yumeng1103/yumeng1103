@@ -38,6 +38,7 @@ namespace asst
         bool update_deployment(bool init = false, const cv::Mat& reusable = cv::Mat());
         bool update_kills(const cv::Mat& reusable = cv::Mat());
         bool update_cost(const cv::Mat& reusable = cv::Mat());
+        void label_operators(const cv::Mat& image, bool force = false);
 
         bool deploy_oper(const std::string& name, const Point& loc, battle::DeployDirection direction);
         bool retreat_oper(const std::string& name);

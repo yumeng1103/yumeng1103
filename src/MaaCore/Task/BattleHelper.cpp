@@ -248,6 +248,8 @@ bool asst::BattleHelper::update_deployment(bool init, const cv::Mat& reusable)
         update_kills(image);
     }
 
+    label_operators(image);
+
     return check_in_battle(image);
 }
 
@@ -277,6 +279,43 @@ bool asst::BattleHelper::update_cost(const cv::Mat& reusable)
     }
     m_cost = analyzer.get_cost();
     return true;
+}
+
+void asst::BattleHelper::label_operators(const cv::Mat& image, bool force)
+{
+    using namespace std::chrono_literals;
+
+    static std::chrono::steady_clock::time_point last_time;
+    auto now = std::chrono::steady_clock::now();
+    if (!force && now - last_time < 2000ms) {
+        return;
+    }
+    last_time = now;
+
+    cv::Mat draw = image.clone();
+    std::string label = m_stage_name;
+    for (const auto& [name, loc] : m_battlefield_opers) {
+        auto target_iter = m_normal_tile_info.find(loc);
+        if (target_iter == m_normal_tile_info.end()) {
+            continue;
+        }
+        BattleSkillReadyImageAnalyzer skill_analyzer(image);
+        const Point& point = target_iter->second.pos;
+        skill_analyzer.set_base_point(point);
+        int skill_ready = skill_analyzer.analyze();
+
+        label += std::format("\n{} {} {} {}", name, point.x, point.y, skill_ready);
+        cv::circle(draw, cv::Point(point.x, point.y), 5, cv::Scalar(0, 0, 255), -1);
+        if (skill_ready) {
+            cv::putText(draw, "ready", cv::Point(point.x, point.y - 10), 1, 1.2, cv::Scalar(0, 0, 255), 2);
+        }
+    }
+    std::string base_path = "debug/label/battlefield/" + utils::get_random_filestem();
+    asst::imwrite(utils::path(base_path + ".png"), image);
+    asst::imwrite(utils::path(base_path + "_draw.png"), draw);
+    std::ofstream label_ofs(utils::path(base_path + ".txt"));
+    label_ofs << label;
+    label_ofs.close();
 }
 
 bool asst::BattleHelper::deploy_oper(const std::string& name, const Point& loc, DeployDirection direction)
@@ -393,6 +432,8 @@ bool asst::BattleHelper::use_skill(const Point& loc, bool keep_waiting)
 {
     LogTraceFunction;
 
+    label_operators(m_inst_helper.ctrler()->get_image(), true);
+
     return click_oper_on_battlefield(loc) && click_skill(keep_waiting);
 }
 
@@ -442,6 +483,7 @@ bool asst::BattleHelper::wait_until_end(bool weak)
         std::this_thread::yield();
 
         image = m_inst_helper.ctrler()->get_image();
+        update_deployment(false, image);
     }
     return true;
 }
